@@ -6,7 +6,8 @@
 #
 CC=  gcc  # gcc or g++
 
-CFLAGS=-g -Wall -DNORMALUNIX -DLINUX -DSNDSERV # -DUSEASM
+CSTD_FLAGS := $(or $(CSTD_FLAGS),-std=c99)
+CFLAGS=-g -Wall -DNORMALUNIX -DLINUX -DSNDSERV $(CSTD_FLAGS) # -DUSEASM
 LDFLAGS=-L/usr/X11R6/lib
 LIBS=-lXext -lX11 -lnsl -lm
 

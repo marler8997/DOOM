@@ -1,3 +1,14 @@
+# Compile Issues
+
+1. Fix "initializer element is not constant" with `-std=c99`
+
+If you see errors like this:
+```
+m_misc.c:257:48: error: initializer element is not constant
+```
+
+Then it probably means your compiler is using a C standard version that is too old.  It looks like non-constants in initializer lists may have been introduced in c99, so just add `-std=c99` to fix.
+
 
 # First Patch
 
