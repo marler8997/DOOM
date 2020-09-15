@@ -1,3 +1,30 @@
+# Getting an 8-bit X server on modern systems
+
+I tried starting an X server on a different virtual terminal, but I couldn't get it to support 8-bit depth.  I also tried using `Xnest` but got the same issues.  Luckily, `Xephyr` was able to run in 8-bit mode.
+
+> NOTE: :1 tells Xephyr to serve the display on :1
+
+```sh
+# default resolution
+Xephyr :1 -screen 320x200x8
+
+# -2 resolution
+Xephyr :1 -screen 640x400x8
+
+# -3 resolution
+Xephyr :1 -screen 960x600x8
+```
+
+> Note: `Xephyr` is in the `xorg.xorgserver` package on nixos.
+
+With this I can run doom from the command-line with:
+```sh
+# for -3 scale
+DISPLAY=:1 ./out/doom -3
+```
+
+With this last change I'm able to run the game, however, colors are messed up.  My guess is it's an issue with the Xephyr PseudoColor implementation, it's probably a very uncommon usage that never gets tested.
+
 # Compile Issues
 
 1. Fix "initializer element is not constant" with `-std=c99`
