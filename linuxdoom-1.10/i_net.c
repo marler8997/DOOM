@@ -73,6 +73,9 @@ boolean NetListen (void);
 // NETWORKING
 //
 
+// need to define becuase it is missing in musl?
+#define IPPORT_USERRESERVED 1024
+
 int	DOOMPORT =	(IPPORT_USERRESERVED +0x1d );
 
 int			sendsocket;

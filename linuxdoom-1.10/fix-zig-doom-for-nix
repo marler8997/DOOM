@@ -1,0 +1,13 @@
+#!/usr/bin/env sh
+set -ex
+
+get_pkg_path() {
+	attr=$1
+	nix show-derivation -f '<nixos>' "$attr" | jq -r '.[].env.out'
+}
+
+patchelf \
+    --set-interpreter $(get_pkg_path pkgsi686Linux.musl)/lib/ld-musl-i386.so.1 \
+    --replace-needed libX11.so.6 $(get_pkg_path pkgsi686Linux.xorg.libX11)/lib/libX11.so.6 \
+    --replace-needed libXext.so.6 $(get_pkg_path pkgsi686Linux.xorg.libXext)/lib/libXext.so.6 \
+    zig-cache/bin/doom

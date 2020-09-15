@@ -1,3 +1,26 @@
+# Enter nix shell
+
+```
+nix-shell -A native
+# OR
+nix-shell -A i686
+```
+
+# Build with zig
+
+```
+# NOTE: i386-linux-gnu not working: lld: error: relocation refers to a symbol in a discarded section: __x86.get_pc_thunk.bx
+
+zig build -Dtarget=i386-linux-musl'
+```
+
+```
+# NOTE: i386-linux-gnu not working: lld: error: relocation refers to a symbol in a discarded section: __x86.get_pc_thunk.bx
+#extra=$(pkg-config --cflags --libs-only-L x11 xext)
+CC="zig cc -target i386-linux" meson out
+ninja -C out
+```
+
 # Getting an 8-bit X server on modern systems
 
 I tried starting an X server on a different virtual terminal, but I couldn't get it to support 8-bit depth.  I also tried using `Xnest` but got the same issues.  Luckily, `Xephyr` was able to run in 8-bit mode.
