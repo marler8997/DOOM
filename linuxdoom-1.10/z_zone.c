@@ -179,6 +179,13 @@ void Z_Free (void* ptr)
 //
 #define MINFRAGMENT		64
 
+#if __WORDSIZE == 32
+    #define align(x) ((x + 3) & ~3)
+#elif __WORDSIZE == 64
+    #define align(x) ((x + 7) & ~7)
+#else
+    #error __WORDSIZE is neither 32 nor 64
+#endif
 
 void*
 Z_Malloc
@@ -192,7 +199,7 @@ Z_Malloc
     memblock_t* newblock;
     memblock_t*	base;
 
-    size = (size + 3) & ~3;
+    size = align(size);
     
     // scan through the block list,
     // looking for the first free block
