@@ -179,7 +179,6 @@ void R_InitSpriteDefs (char** namelist)
     char**	check;
     int		i;
     int		l;
-    int		intname;
     int		frame;
     int		rotation;
     int		start;
@@ -210,8 +209,9 @@ void R_InitSpriteDefs (char** namelist)
 	memset (sprtemp,-1, sizeof(sprtemp));
 		
 	maxframe = -1;
-	intname = *(int *)namelist[i];
-	
+	int intname;
+	memcpy(&intname, namelist[i], sizeof(intname)); // use memcpy because namelist may not be aligned
+
 	// scan the lumps,
 	//  filling in the frames for whatever is found
 	for (l=start+1 ; l<end ; l++)

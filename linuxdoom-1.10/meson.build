@@ -6,6 +6,24 @@ libxext = dependency('xext')
 cc = meson.get_compiler('c')
 libm = cc.find_library('m')
 
+dependencies = [
+    libm,
+    libx11,
+    libxext,
+]
+
+c_args = [
+    '-std=c99',
+    '-DLINUX',
+    '-DNORMALUNIX',
+    '-DSNDSERV',
+]
+
+if get_option('ubsan')
+    dependencies += cc.find_library('ubsan')
+    c_args += '-fsanitize=undefined'
+endif
+
 executable('doom',
     'doomdef.c',
     'doomstat.c',
@@ -69,16 +87,7 @@ executable('doom',
     'z_zone.c',
     'info.c',
     'sounds.c',
-    c_args : [
-        '-std=c99',
-        '-DLINUX',
-        '-DNORMALUNIX',
-        '-DSNDSERV',
-    ],
-    dependencies : [
-        libm,
-        libx11,
-        libxext,
-    ],
+    c_args : c_args,
+    dependencies : dependencies,
     install : true,
 )

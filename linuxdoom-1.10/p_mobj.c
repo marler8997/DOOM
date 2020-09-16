@@ -659,8 +659,8 @@ void P_SpawnPlayer (mapthing_t* mthing)
     if (p->playerstate == PST_REBORN)
 	G_PlayerReborn (mthing->type-1);
 
-    x 		= mthing->x << FRACBITS;
-    y 		= mthing->y << FRACBITS;
+    x 		= ToFixed(mthing->x);
+    y 		= ToFixed(mthing->y);
     z		= ONFLOORZ;
     mobj	= P_SpawnMobj (x,y,z, MT_PLAYER);
 
@@ -713,7 +713,7 @@ void P_SpawnMapThing (mapthing_t* mthing)
     fixed_t		x;
     fixed_t		y;
     fixed_t		z;
-		
+
     // count deathmatch start positions
     if (mthing->type == 11)
     {
@@ -773,8 +773,8 @@ void P_SpawnMapThing (mapthing_t* mthing)
     }
     
     // spawn it
-    x = mthing->x << FRACBITS;
-    y = mthing->y << FRACBITS;
+    x = ToFixed(mthing->x);
+    y = ToFixed(mthing->y);
 
     if (mobjinfo[i].flags & MF_SPAWNCEILING)
 	z = ONCEILINGZ;
@@ -791,7 +791,7 @@ void P_SpawnMapThing (mapthing_t* mthing)
     if (mobj->flags & MF_COUNTITEM)
 	totalitems++;
 		
-    mobj->angle = ANG45 * (mthing->angle/45);
+    mobj->angle = (int)(ANG45 * (unsigned)(mthing->angle/45));
     if (mthing->options & MTF_AMBUSH)
 	mobj->flags |= MF_AMBUSH;
 }
@@ -816,7 +816,7 @@ P_SpawnPuff
 {
     mobj_t*	th;
 	
-    z += ((P_Random()-P_Random())<<10);
+    z += SignedLeftShift(P_Random()-P_Random(), 10);
 
     th = P_SpawnMobj (x,y,z, MT_PUFF);
     th->momz = FRACUNIT;
@@ -844,7 +844,7 @@ P_SpawnBlood
 {
     mobj_t*	th;
 	
-    z += ((P_Random()-P_Random())<<10);
+    z += SignedLeftShift(P_Random()-P_Random(), 10);
     th = P_SpawnMobj (x,y,z, MT_BLOOD);
     th->momz = FRACUNIT*2;
     th->tics -= P_Random()&3;
@@ -907,7 +907,7 @@ P_SpawnMissile
 
     // fuzzy player
     if (dest->flags & MF_SHADOW)
-	an += (P_Random()-P_Random())<<20;	
+	an += SignedLeftShift(P_Random()-P_Random(), 20);
 
     th->angle = an;
     an >>= ANGLETOFINESHIFT;

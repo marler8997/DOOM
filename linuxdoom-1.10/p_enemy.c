@@ -676,7 +676,6 @@ void A_Chase (mobj_t*	actor)
     if (actor->reactiontime)
 	actor->reactiontime--;
 				
-
     // modify target threshold
     if  (actor->threshold)
     {
@@ -692,8 +691,8 @@ void A_Chase (mobj_t*	actor)
     // turn towards movement direction if not there yet
     if (actor->movedir < 8)
     {
-	actor->angle &= (7<<29);
-	delta = actor->angle - (actor->movedir << 29);
+	actor->angle &= ((unsigned)7<<29);
+	delta = actor->angle - SignedLeftShift(actor->movedir, 29);
 	
 	if (delta > 0)
 	    actor->angle -= ANG90/2;
@@ -792,7 +791,7 @@ void A_FaceTarget (mobj_t* actor)
 				    actor->target->y);
     
     if (actor->target->flags & MF_SHADOW)
-	actor->angle += (P_Random()-P_Random())<<21;
+	actor->angle += SignedLeftShift(P_Random()-P_Random(), 21);
 }
 
 
@@ -813,7 +812,7 @@ void A_PosAttack (mobj_t* actor)
     slope = P_AimLineAttack (actor, angle, MISSILERANGE);
 
     S_StartSound (actor, sfx_pistol);
-    angle += (P_Random()-P_Random())<<20;
+    angle += SignedLeftShift(P_Random()-P_Random(), 20);
     damage = ((P_Random()%5)+1)*3;
     P_LineAttack (actor, angle, MISSILERANGE, slope, damage);
 }
@@ -836,7 +835,7 @@ void A_SPosAttack (mobj_t* actor)
 
     for (i=0 ; i<3 ; i++)
     {
-	angle = bangle + ((P_Random()-P_Random())<<20);
+	angle = bangle + SignedLeftShift(P_Random()-P_Random(), 20);
 	damage = ((P_Random()%5)+1)*3;
 	P_LineAttack (actor, angle, MISSILERANGE, slope, damage);
     }
@@ -857,7 +856,7 @@ void A_CPosAttack (mobj_t* actor)
     bangle = actor->angle;
     slope = P_AimLineAttack (actor, bangle, MISSILERANGE);
 
-    angle = bangle + ((P_Random()-P_Random())<<20);
+    angle = bangle + SignedLeftShift(P_Random()-P_Random(), 20);
     damage = ((P_Random()%5)+1)*3;
     P_LineAttack (actor, angle, MISSILERANGE, slope, damage);
 }

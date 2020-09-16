@@ -413,9 +413,7 @@ R_GetColumn
 //
 void R_InitTextures (void)
 {
-    maptexture_t*	mtexture;
     texture_t*		texture;
-    mappatch_t*		mpatch;
     texpatch_t*		patch;
 
     int			i;
@@ -521,27 +519,30 @@ void R_InitTextures (void)
 
 	if (offset > maxoff)
 	    I_Error ("R_InitTextures: bad texture directory");
-	
-	mtexture = (maptexture_t *) ( (byte *)maptex + offset);
+
+	maptexture_t *mtexture_ptr = (maptexture_t *) ( (byte *)maptex + offset);
+	const maptexture_t mtexture_aligned;
+	memcpy(&mtexture_aligned, mtexture_ptr, sizeof(mtexture_aligned));
 
 	texture = textures[i] =
 	    Z_Malloc (sizeof(texture_t)
-		      + sizeof(texpatch_t)*(SHORT(mtexture->patchcount)-1),
+		      + sizeof(texpatch_t)*(SHORT(mtexture_aligned.patchcount)-1),
 		      PU_STATIC, 0);
 	
-	texture->width = SHORT(mtexture->width);
-	texture->height = SHORT(mtexture->height);
-	texture->patchcount = SHORT(mtexture->patchcount);
+	texture->width = SHORT(mtexture_aligned.width);
+	texture->height = SHORT(mtexture_aligned.height);
+	texture->patchcount = SHORT(mtexture_aligned.patchcount);
 
-	memcpy (texture->name, mtexture->name, sizeof(texture->name));
-	mpatch = &mtexture->patches[0];
+	memcpy (texture->name, mtexture_aligned.name, sizeof(texture->name));
 	patch = &texture->patches[0];
 
-	for (j=0 ; j<texture->patchcount ; j++, mpatch++, patch++)
+	mappatch_t *patches_ptr = (mappatch_t*)((byte*)mtexture_ptr + offsetof(maptexture_t, patches));
+	for (j=0 ; j<texture->patchcount ; j++, patch++)
 	{
-	    patch->originx = SHORT(mpatch->originx);
-	    patch->originy = SHORT(mpatch->originy);
-	    patch->patch = patchlookup[SHORT(mpatch->patch)];
+	    mappatch_t mpatch_aligned = patches_ptr[j]; // make an aligned copy
+	    patch->originx = SHORT(mpatch_aligned.originx);
+	    patch->originy = SHORT(mpatch_aligned.originy);
+	    patch->patch = patchlookup[SHORT(mpatch_aligned.patch)];
 	    if (patch->patch == -1)
 	    {
 		I_Error ("R_InitTextures: Missing patch in texture %s",
@@ -622,9 +623,9 @@ void R_InitSpriteLumps (void)
 	    printf (".");
 
 	patch = W_CacheLumpNum (firstspritelump+i, PU_CACHE);
-	spritewidth[i] = SHORT(patch->width)<<FRACBITS;
-	spriteoffset[i] = SHORT(patch->leftoffset)<<FRACBITS;
-	spritetopoffset[i] = SHORT(patch->topoffset)<<FRACBITS;
+	spritewidth[i] = ToFixed(SHORT(patch->width));
+	spriteoffset[i] = ToFixed(SHORT(patch->leftoffset));
+	spritetopoffset[i] = ToFixed(SHORT(patch->topoffset));
     }
 }
 

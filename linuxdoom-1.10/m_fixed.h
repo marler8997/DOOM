@@ -41,7 +41,14 @@ fixed_t FixedMul	(fixed_t a, fixed_t b);
 fixed_t FixedDiv	(fixed_t a, fixed_t b);
 fixed_t FixedDiv2	(fixed_t a, fixed_t b);
 
-
+static inline int SignedLeftShift(int x, unsigned shift)
+{
+  return (int)((unsigned)x << shift);
+}
+static inline fixed_t ToFixed(int x)
+{
+  return SignedLeftShift(x, FRACBITS);
+}
 
 #endif
 //-----------------------------------------------------------------------------

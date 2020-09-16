@@ -1,0 +1,1 @@
+option('ubsan', type : 'boolean', value : true)

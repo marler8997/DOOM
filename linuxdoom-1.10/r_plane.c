@@ -358,6 +358,17 @@ R_MakeSpans
     }
 }
 
+// get element at idx (idx can be negative)
+static byte array_get_oob(byte *arr, int idx)
+{
+  return *(arr + idx);
+}
+
+// set element at idx (idx can be negative)
+static void array_set_oob(byte *arr, int idx, byte value)
+{
+  *(arr + idx) = value;
+}
 
 
 //
@@ -435,17 +446,17 @@ void R_DrawPlanes (void)
 
 	planezlight = zlight[light];
 
-	pl->top[pl->maxx+1] = 0xff;
-	pl->top[pl->minx-1] = 0xff;
+	array_set_oob(pl->top, pl->maxx+1, 0xff);
+	array_set_oob(pl->top, pl->minx-1, 0xff);
 		
 	stop = pl->maxx + 1;
 
 	for (x=pl->minx ; x<= stop ; x++)
 	{
-	    R_MakeSpans(x,pl->top[x-1],
-			pl->bottom[x-1],
-			pl->top[x],
-			pl->bottom[x]);
+	    R_MakeSpans(x,array_get_oob(pl->top, x-1),
+			array_get_oob(pl->bottom, x-1),
+			array_get_oob(pl->top, x),
+			array_get_oob(pl->bottom, x));
 	}
 	
 	Z_ChangeTag (ds_source, PU_CACHE);
