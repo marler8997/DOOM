@@ -69,7 +69,6 @@ fn addSource(exe: *std.build.LibExeObjStep) void {
     exe.addCSourceFile("g_game.c", cflags);
     exe.addCSourceFile("m_menu.c", cflags);
     exe.addCSourceFile("m_misc.c", cflags);
-    exe.addCSourceFile("m_argv.c", cflags);
     exe.addCSourceFile("m_bbox.c", cflags);
     exe.addCSourceFile("m_fixed.c", cflags);
     exe.addCSourceFile("m_swap.c", cflags);
