@@ -4,6 +4,7 @@ const Allocator = std.mem.Allocator;
 const argv = @import("./argv.zig");
 
 const c = @cImport({
+    @cInclude("doomstat.h");
     @cInclude("d_main.h");
 });
 
@@ -13,21 +14,21 @@ pub const gpa = &gpa_mem.allocator;
 
 // Game mode handling - identify IWAD version
 //  to handle IWAD dependend animations etc.
-const GameMode = enum {
+const GameMode = extern enum(c_int) {
     shareware,   // DOOM 1 shareware, E1, M9
     registered,  // DOOM 1 registered, E3, M27
     commercial,  // DOOM 2 retail, E1 M34
     retail,      // DOOM 1 retail, E4, M36
     indetermined // Well, no IWAD found.
 };
-const Language = enum {
+const Language = extern enum(c_int) {
     english,
     french,
     german,
 };
 
 const VersionDef = struct {
-    file: []const u8,
+    file: [:0]const u8,
     mode: GameMode,
     lang: Language,
 };
@@ -45,8 +46,17 @@ const Version = struct {
     def: *const VersionDef,
     file: []const u8,
 };
+
+// IdentifyVersion
+// Checks availability of IWAD files by name,
+// to determine whether registered/commercial features
+// should be executed (notably loading PWAD's).
 pub fn identifyVersion(allocator: *Allocator, dir: []const u8) !Version {
     // TODO: enable/test these if I get the debug files necessary
+    //home = getenv("HOME");
+    //if (!home)
+    //  I_Error("Please set $HOME to your home directory");
+    //sprintf(basedefault, "%s/.doomrc", home);
 //    if (M_CheckParm ("-shdev"))
 //    {
 //	gamemode = shareware;
@@ -91,8 +101,9 @@ pub fn identifyVersion(allocator: *Allocator, dir: []const u8) !Version {
 
     var match : ?Version = null;
     for (versionDefs) |*versionDef| {
-        const file = try std.fs.path.join(allocator, &[_][]const u8 {dir, versionDef.file});
-        if (std.fs.cwd().access(file, .{})) {
+        const file = try std.mem.joinZ(allocator, std.fs.path.sep_str, &[_][]const u8 {dir, versionDef.file});
+        //std.debug.warn("checking '{}'\n", .{file});
+        if (std.fs.cwd().accessZ(file, .{})) {
             if (match) |v| {
                 // TODO: if there are multiple, would be better to
                 //       populate the game select menu
@@ -112,6 +123,13 @@ pub fn identifyVersion(allocator: *Allocator, dir: []const u8) !Version {
         std.debug.warn("matched version {}\n", .{v.def});
         return v;
     }
+
+    // TODO: original C version had this...
+    //       will support this if I figure out how it works
+    // We don't abort. Let's see what the PWAD contains.
+    //printf("Game mode indeterminate.\n");
+    //gamemode = indetermined;
+
     std.debug.warn("Error: unable to find any of the following game version files:\n", .{});
     for (versionDefs) |versionDef| {
         std.debug.warn("    {}\n", .{versionDef.file});
@@ -206,5 +224,9 @@ pub fn main2() !void {
     //       not sure why it exists, why not just support a command-line option?
     //       this is an exe not a library so command-line should work
     const version = try identifyVersion(gpa, ".");
+    c.gamemode = @intToEnum(@TypeOf(c.gamemode), @enumToInt(version.def.mode));
+    c.language = @intToEnum(@TypeOf(c.language), @enumToInt(version.def.lang));
+    c.D_AddFile(version.file.ptr);
+
     c.D_DoomMain();
 }
