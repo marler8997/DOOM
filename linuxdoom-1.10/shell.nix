@@ -21,6 +21,7 @@ let
         #platform.pkgconfig
     ];
     nixpkgs = import <nixpkgs> {};
+    pkgsArm64 = nixpkgs.pkgsCross.aarch64-multiplatform;
 in
 {
     native = nixpkgs.mkShell {
@@ -28,5 +29,8 @@ in
     };
     i686 = nixpkgs.pkgsi686Linux.mkShell {
         buildInputs = pkgs nixpkgs.pkgsi686Linux;
+    };
+    arm64 = pkgsArm64.mkShell {
+        buildInputs = pkgs pkgsArm64;
     };
 }
